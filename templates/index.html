@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <meta name="description" content="AI-powered recipe generator that creates delicious recipes from your ingredients">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recipe Generator - AI</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <button class="menu-toggle" id="menuToggle">☰</button>
+  
+  <nav class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="/static/logo2.png" alt="RecipeAI Logo" class="logo">
+    </div>
+    <div class="nav-links">
+      <a href="/" class="active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Home
+      </a>
+      <a href="/saved-recipes" id="saved-recipes-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Saved Recipes
+      </a>
+      <a href="/about">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        About
+      </a>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <div class="auth-buttons" id="authButtons">
+      <button class="auth-btn" id="toggleAuthBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+          <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a1.998 1.998 0 0 1 0 2.83 1.998 1.998 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.998 1.998 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sign In
+      </button>
+    </div>
+
+    <div class="container">
+      <h1 class="title-animate">Personalized Recipe Generator</h1>
+
+      <div class="generation-options">
+        <div class="option-card active" id="strict-mode">
+          <h3>Strict Mode</h3>
+          <p>Generate recipes using ONLY your available ingredients</p>
+        </div>
+        <div class="option-card" id="flexible-mode">
+          <h3>Flexible Mode</h3>
+          <p>Generate recipes using your ingredients as primary components</p>
+        </div>
+      </div>
+
+      <p class="subtitle">Create delicious recipes from your ingredients with AI</p>
+      
+      <form id="recipe-form" class="form-animate">
+        <div class="form-group">
+          <label for="ingredients">Ingredients (comma separated):</label>
+          <input type="text" id="ingredients" name="ingredients" placeholder="e.g. chicken, rice, tomatoes, garlic, olive oil" required />
+        </div>
+        
+        <div class="float">
+            <div class="form-group">
+                <label for="serves">Serves:</label>
+                <input type="number" id="serves" name="serves" value="4" min="1" max="20" style="margin-right: 20px;"/>
+              </div>
+              
+              <div class="form-group">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" name="difficulty">
+                  <option value="easy">Easy</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+        </div>
+        
+        <div class="float">
+            <div class="form-group">
+                <label for="cuisine">Cuisine:</label>
+                <select name="cuisine" id="cuisine" class="choices-select"></select>
+              </div>
+              
+              <div class="form-group">
+                <label for="language">Language Preference:</label>
+                <select name="language" id="language" class="choices-select" required ></select>
+              </div>
+        </div>
+
+        <div class="form-group">
+            <label for="dietary_preferences">Dietary Preferences:</label>
+            <input type="text" id="dietary_preferences" name="dietary_preferences" placeholder="e.g. vegetarian, gluten-free, keto" />
+          </div>
+          
+
+        <button type="submit" class="btn-pulse" id="generateBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Generate Recipe
+        </button>
+      </form>
+
+      <div id="loading" class="loading-spinner" style="display: none; margin: 2rem auto;"></div>
+      
+      <div id="results" class="results" style="display:none;">
+        <div class="recipe-content">
+          <pre id="recipe-output" class="recipe-text slide-in"></pre>
+          <button id="save-recipe-btn" class="btn-pulse">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+              <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Save Recipe
+          </button>
+        </div>
+        <div class="recipe-image-container">
+          <img id="dish-image" src="" alt="Generated Dish" class="recipe-image fade-in" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="auth-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close">&times;</span>
+        
+        <div id="login-form">
+            <h2>Login</h2>
+            <form>
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-pulse">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
+        </div>
+        
+        <div id="register-form" style="display:none;">
+            <h2>Register</h2>
+            <form>
+                <div class="form-group">
+                    <label for="register-name">Name</label>
+                    <input type="text" id="register-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <button type="submit" class="btn-pulse">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let currentUser = null;
+    let currentRecipe = null;
+    let languageChoices = null;
+    let cuisineChoices = null;
+    let strictMode = true;
+
+    // DOM elements
+    const form = document.getElementById('recipe-form');
+    const output = document.getElementById('recipe-output');
+    const resultsDiv = document.getElementById('results');
+    const image = document.getElementById('dish-image');
+    const saveRecipeBtn = document.getElementById('save-recipe-btn');
+    const savedRecipesLink = document.getElementById('saved-recipes-link');
+    const toggleAuthBtn = document.getElementById('toggleAuthBtn');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const loadingSpinner = document.getElementById('loading');
+    const generateBtn = document.getElementById('generateBtn');
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    // Initialize on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuthState();
+        initSelects();
+        setupEventListeners();
+        
+        // Set initial mode from localStorage
+        const savedMode = localStorage.getItem('recipeMode');
+        if (savedMode === 'flexible') {
+            strictMode = false;
+            document.getElementById('flexible-mode').classList.add('active');
+            document.getElementById('strict-mode').classList.remove('active');
+        } else {
+            strictMode = true;
+            document.getElementById('strict-mode').classList.add('active');
+            document.getElementById('flexible-mode').classList.remove('active');
+        }
+    });
+
+    // Set up event listeners
+    function setupEventListeners() {
+        // Menu toggle for mobile
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 992 && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Navigation links
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (link.getAttribute('href') !== '/') {
+                    e.preventDefault();
+                    window.location.href = link.getAttribute('href');
+                }
+            });
+        });
+        
+        // Form submission
+        form.addEventListener('submit', handleFormSubmit);
+
+        // Save recipe button
+        saveRecipeBtn.addEventListener('click', saveRecipeHandler);
+
+        // Toggle auth button
+        toggleAuthBtn.addEventListener('click', toggleAuthState);
+
+        // Strict/Flexible mode toggles
+        document.getElementById('strict-mode').addEventListener('click', () => {
+            if (!strictMode) {
+                strictMode = true;
+                document.getElementById('strict-mode').classList.add('active');
+                document.getElementById('flexible-mode').classList.remove('active');
+                localStorage.setItem('recipeMode', 'strict');
+            }
+        });
+
+        document.getElementById('flexible-mode').addEventListener('click', () => {
+            if (strictMode) {
+                strictMode = false;
+                document.getElementById('flexible-mode').classList.add('active');
+                document.getElementById('strict-mode').classList.remove('active');
+                localStorage.setItem('recipeMode', 'flexible');
+            }
+        });
+
+        // Auth modal handlers
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('auth-modal').style.display = 'none';
+        });
+
+        document.getElementById('show-register').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        });
+
+        document.getElementById('show-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        });
+
+        // Login form submission
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const username = email.split('@')[0];
+            
+            currentUser = {
+                name: username,
+                email: email,
+                picture: "https://ui-avatars.com/api/?name=" + encodeURIComponent(username) + "&background=random"
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById('auth-modal').style.display = 'none';
+            updateAuthUI(true);
+        });
+
+        // Register form submission
+        document.getElementById('register-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            
+            currentUser = {
+                name: name,
+                email: email,
+                picture: "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=random"
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById('auth-modal').style.display = 'none';
+            updateAuthUI(true);
+        });
+    }
+
+    // Check authentication state from localStorage
+    function checkAuthState() {
+        currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        updateAuthUI(!!currentUser);
+    }
+
+    // Update UI based on auth state
+    function updateAuthUI(isAuthenticated) {
+        if (isAuthenticated) {
+            document.body.classList.add('authenticated');
+            toggleAuthBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+                    <path d="M16 17L21 12L16 7M21 12H9M9 3H7C5.89543 3 5 3.89543 5 5V19C5 20.1046 5.89543 21 7 21H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Sign Out
+            `;
+            savedRecipesLink.style.display = 'flex';
+            
+            if (currentRecipe) {
+                saveRecipeBtn.style.display = 'flex';
+            }
+        } else {
+            document.body.classList.remove('authenticated');
+            toggleAuthBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a1.998 1.998 0 0 1 0 2.83 1.998 1.998 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.998 1.998 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Sign In
+            `;
+            savedRecipesLink.style.display = 'none';
+            saveRecipeBtn.style.display = 'none';
+        }
+    }
+
+    // Toggle auth state
+    function toggleAuthState() {
+        if (currentUser) {
+            // Sign out
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            updateAuthUI(false);
+        } else {
+            // Show auth modal
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+    }
+
+    // Form submission handler
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        output.textContent = "Crafting your recipe... please wait.";
+        resultsDiv.style.display = "none";
+        loadingSpinner.style.display = "block";
+        generateBtn.disabled = true;
+
+        const formData = new FormData(form);
+        const ingredients = formData.get('ingredients');
+        
+        try {
+            let prompt;
+            if (strictMode) {
+                prompt = `Create a detailed recipe using ONLY these ingredients: ${ingredients}. 
+                DO NOT add any extra ingredients beyond what is listed here.
+                Requirements:
+                - Serves: ${formData.get('serves', '4')}
+                - Difficulty: ${formData.get('difficulty', 'medium')}
+                - Cuisine: ${formData.get('cuisine', '')}
+                - Dietary: ${formData.get('dietary_preferences', '')}
+                
+                Format the recipe EXACTLY like this:
+                
+                Recipe Name: [Creative name]
+                
+                Serving Size: [number] people
+                Difficulty: [easy/medium/hard]
+                Preparation Time: [estimate]
+                Cooking Time: [estimate]
+                
+                Ingredients:
+                • [Only the provided ingredients with quantities]
+                
+                Instructions:
+                1. [Detailed step 1]
+                2. [Detailed step 2]
+                [Continue with at least 5 steps]
+                
+                Tips:
+                • [Helpful tip 1]
+                • [Helpful tip 2]
+                
+                Nutritional Info (per serving):
+                • Calories: [estimate]
+                • Protein: [estimate]
+                • Carbs: [estimate]
+                • Fat: [estimate]`;
+            } else {
+                prompt = `Create a detailed recipe where these are the main ingredients: ${ingredients}.
+                You may add common pantry staples (salt, pepper, oil, etc.) and up to 3 complementary ingredients.
+                
+                Requirements:
+                - Serves: ${formData.get('serves', '4')}
+                - Difficulty: ${formData.get('difficulty', 'medium')}
+                - Cuisine: ${formData.get('cuisine', '')}
+                - Dietary: ${formData.get('dietary_preferences', '')}
+                
+                Format the recipe EXACTLY like this:
+                
+                Recipe Name: [Creative name]
+                
+                Serving Size: [number] people
+                Difficulty: [easy/medium/hard]
+                Preparation Time: [estimate]
+                Cooking Time: [estimate]
+                
+                Ingredients:
+                • [Main ingredients with quantities]
+                • [Added pantry staples]
+                
+                Instructions:
+                1. [Detailed step 1]
+                2. [Detailed step 2]
+                [Continue with at least 5 steps]
+                
+                Tips:
+                • [Helpful tip 1]
+                • [Helpful tip 2]
+                
+                Nutritional Info (per serving):
+                • Calories: [estimate]
+                • Protein: [estimate]
+                • Carbs: [estimate]
+                • Fat: [estimate]`;
+            }
+            
+            const response = await fetch('/generate_recipe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    ingredients: ingredients,
+                    serves: formData.get('serves'),
+                    difficulty: formData.get('difficulty'),
+                    cuisine: formData.get('cuisine'),
+                    dietary_preferences: formData.get('dietary_preferences'),
+                    strictMode: strictMode,
+                    language: formData.get('language')
+                })
+            });
+            
+            const data = await response.json();
+
+            if (data.success) {
+                image.src = data.image_url;
+                output.innerHTML = formatRecipeOutput(data.recipe);
+                resultsDiv.style.display = "flex";
+                
+                currentRecipe = {
+                    id: Date.now().toString(),
+                    title: extractRecipeTitle(data.recipe),
+                    content: data.recipe,
+                    image_url: data.image_url,
+                    ingredients: ingredients,
+                    cuisine: formData.get('cuisine'),
+                    dietary_preferences: formData.get('dietary_preferences'),
+                    createdAt: new Date().toISOString(),
+                    strictMode: strictMode
+                };
+                
+                saveRecipeBtn.style.display = currentUser ? 'flex' : 'none';
+            } else {
+                output.textContent = "Error: " + (data.error || "Failed to generate recipe");
+                resultsDiv.style.display = "flex";
+            }
+        } catch (error) {
+            output.textContent = "Failed to generate recipe. Please try again.";
+            resultsDiv.style.display = "flex";
+            console.error('Error:', error);
+        } finally {
+            loadingSpinner.style.display = "none";
+            generateBtn.disabled = false;
+        }
+    }
+
+    // Save recipe handler
+    function saveRecipeHandler() {
+        if (!currentUser || !currentRecipe) return;
+        
+        saveRecipeBtn.disabled = true;
+        saveRecipeBtn.innerHTML = '<span class="loading-spinner"></span> Saving...';
+        
+        try {
+            const userRecipes = JSON.parse(localStorage.getItem(`recipes_${currentUser.email}`)) || [];
+            userRecipes.push(currentRecipe);
+            localStorage.setItem(`recipes_${currentUser.email}`, JSON.stringify(userRecipes));
+            
+            alert('Recipe saved successfully!');
+        } catch (error) {
+            console.error('Error saving recipe:', error);
+            alert('Error saving recipe');
+        } finally {
+            saveRecipeBtn.disabled = false;
+            saveRecipeBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+                    <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Save Recipe
+            `;
+        }
+    }
+
+    // Helper function to extract recipe title
+    function extractRecipeTitle(recipeText) {
+        const titleMatch = recipeText.match(/^Recipe Name: (.+)$/m);
+        return titleMatch ? titleMatch[1] : 'Custom Recipe';
+    }
+
+    // Initialize select dropdowns with Choices.js
+    function initSelects() {
+        // Language Select
+        const languageSelect = document.getElementById('language');
+        const languages = [
+            "English", "Spanish", "French", "German", "Italian", "Chinese", 
+            "Japanese", "Korean", "Hindi", "Arabic", "Russian", "Portuguese",
+            "Dutch", "Turkish", "Vietnamese", "Thai", "Indonesian", "Filipino",
+            "Malay", "Swahili", "Persian", "Bengali", "Punjabi", "Urdu",
+            "Hindi", "Bengali", "Telugu", "Marathi", "Tamil", 
+            "Urdu", "Gujarati", "Kannada", "Odia", "Malayalam", "Punjabi",
+            "Assamese", "Maithili", "Sanskrit"
+        ];
+
+        languages.forEach(lang => {
+            const option = document.createElement("option");
+            option.value = lang;
+            option.textContent = lang;
+            languageSelect.appendChild(option);
+        });
+
+        // Initialize Choices.js for language select
+        languageChoices = new Choices(languageSelect, {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select language',
+            searchPlaceholderValue: 'Type to search language...',
+            shouldSort: false
+        });
+
+        // Cuisine Select
+        const cuisineSelect = document.getElementById('cuisine');
+        const cuisines = [
+            "American", "British", "Chinese", "French", "Indian", "Italian", 
+            "Japanese", "Mexican", "Thai", "Mediterranean", "Middle Eastern",
+            "Korean", "Vietnamese", "Greek", "Spanish", "Caribbean", "African",
+            "North Indian", "South Indian", "Bengali", "Punjabi", "Gujarati",
+            "Maharashtrian", "Rajasthani", "Kashmiri", "Hyderabadi", "Chettinad",
+            "Kerala", "Goan", "Awadhi", "Bihari", "Oriya", "Assamese",
+            "Sindhi", "Parsi", "Mughlai", "Indian Chinese", "Indian Street Food"
+        ];
+
+        cuisines.forEach(cuisine => {
+            const option = document.createElement("option");
+            option.value = cuisine;
+            option.textContent = cuisine;
+            cuisineSelect.appendChild(option);
+        });
+
+        // Initialize Choices.js for cuisine select
+        cuisineChoices = new Choices(cuisineSelect, {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select cuisine(s)',
+            searchPlaceholderValue: 'Type to search cuisines...',
+            duplicateItemsAllowed: false,
+            maxItemCount: 5,
+            shouldSort: false
+        });
+    }
+
+    function formatRecipeOutput(recipeText) {
+        // Split the recipe into sections
+        const sections = recipeText.split(/\n\s*\n/);
+        let html = '';
+        
+        sections.forEach(section => {
+            if (section.startsWith('Recipe Name:')) {
+                html += `<h3>${section.replace('Recipe Name:', '').trim()}</h3>`;
+            } else if (section.startsWith('Serving Size:')) {
+                html += `<div class="recipe-section"><h4>Recipe Details</h4><ul>`;
+                section.split('\n').forEach(line => {
+                    if (line.trim()) html += `<li>${line.trim()}</li>`;
+                });
+                html += `</ul></div>`;
+            } else if (section.startsWith('Ingredients:')) {
+                html += `<div class="recipe-section"><h4>Ingredients</h4><ul>`;
+                section.split('\n').slice(1).forEach(line => {
+                    if (line.trim()) html += `<li>${line.replace(/^• /, '').trim()}</li>`;
+                });
+                html += `</ul></div>`;
+            } else if (section.startsWith('Instructions:')) {
+                html += `<div class="recipe-section"><h4>Instructions</h4><ol>`;
+                section.split('\n').slice(1).forEach(line => {
+                    if (line.trim() && line.match(/^\d+\./)) {
+                        html += `<li>${line.replace(/^\d+\./, '').trim()}</li>`;
+                    }
+                });
+                html += `</ol></div>`;
+            } else if (section.startsWith('Tips:')) {
+                html += `<div class="recipe-section"><h4>Tips</h4><ul>`;
+                section.split('\n').slice(1).forEach(line => {
+                    if (line.trim()) html += `<li>${line.replace(/^• /, '').trim()}</li>`;
+                });
+                html += `</ul></div>`;
+            } else if (section.startsWith('Nutritional Info')) {
+                html += `<div class="recipe-section"><h4>Nutritional Information</h4><ul>`;
+                section.split('\n').slice(1).forEach(line => {
+                    if (line.trim()) html += `<li>${line.replace(/^• /, '').trim()}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+        });
+        
+        return html;
+    }
+</script>
+</body>
+</html>

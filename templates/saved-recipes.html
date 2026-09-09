@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="View your saved recipes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Saved Recipes</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* Add modal styles if not already in your style.css */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .close-modal {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .modal-image img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .recipe-text {
+      line-height: 1.6;
+    }
+    
+    .recipe-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .recipe-section h4 {
+      margin-bottom: 0.5rem;
+      color: #228B22;
+    }
+    
+    .recipe-section ul, .recipe-section ol {
+      padding-left: 1.5rem;
+    }
+    
+    .recipe-section li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <button class="menu-toggle" id="menuToggle">☰</button>
+  
+  <nav class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="/static/logo2.png" alt="RecipeAI Logo" class="logo">
+    </div>
+    <div class="nav-links">
+      <a href="/">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Home
+      </a>
+      <a href="/saved-recipes" class="active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Saved Recipes
+      </a>
+      <a href="/about">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        About
+      </a>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <div class="auth-buttons" id="authButtons"></div>
+
+    <div class="container">
+      <h1 class="title-animate">Your Saved Recipes</h1>
+      
+      <div id="saved-recipes-container" class="saved-recipes-grid">
+        <!-- Recipes will appear here -->
+      </div>
+      
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <img src="https://img.icons8.com/ios/100/228B22/recipe-book.png" alt="No recipes"/>
+        <h3>No Saved Recipes Yet</h3>
+        <p>Generate and save some delicious recipes first!</p>
+        <a href="/" class="btn-pulse">Generate Recipe</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('saved-recipes-container');
+      const emptyState = document.getElementById('empty-state');
+      const menuToggle = document.getElementById('menuToggle');
+      const sidebar = document.getElementById('sidebar');
+      const authButtons = document.getElementById('authButtons');
+      
+      // Menu toggle for mobile
+      menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('active');
+      });
+      
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+          sidebar.classList.remove('active');
+        }
+      });
+      
+      // Check auth state and load recipes
+      checkAuthState();
+    });
+    
+    function checkAuthState() {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      updateAuthUI(!!currentUser);
+      
+      if (currentUser) {
+        loadSavedRecipes(currentUser.email);
+      } else {
+        document.getElementById('empty-state').style.display = 'flex';
+      }
+    }
+    
+    function updateAuthUI(isAuthenticated) {
+      const authButtons = document.getElementById('authButtons');
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      
+      if (isAuthenticated && currentUser) {
+        authButtons.innerHTML = `
+          <div class="user-info">
+            <img src="${currentUser.picture}" alt="User" class="user-avatar" />
+            <span>${currentUser.name}</span>
+          </div>
+          <button class="auth-btn google-btn" onclick="signOut()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+              <path d="M16 17L21 12L16 7M21 12H9M9 3H7C5.89543 3 5 3.89543 5 5V19C5 20.1046 5.89543 21 7 21H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Sign Out
+          </button>
+        `;
+      } else {
+        authButtons.innerHTML = `
+          <button class="auth-btn" onclick="signInWithDemo()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+              <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a1.998 1.998 0 0 1 0 2.83 1.998 1.998 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.998 1.998 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Demo Sign In
+          </button>
+        `;
+      }
+    }
+    
+    function signInWithDemo() {
+      const username = prompt("Enter your name for demo purposes:");
+      if (username) {
+        const user = {
+          name: username,
+          email: `${username.toLowerCase().replace(/\s+/g, '')}@demo.com`,
+          picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`
+        };
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        checkAuthState();
+        loadSavedRecipes(user.email);
+      }
+    }
+    
+    function signOut() {
+      localStorage.removeItem('currentUser');
+      checkAuthState();
+      window.location.reload();
+    }
+    
+    function loadSavedRecipes(userEmail) {
+      const container = document.getElementById('saved-recipes-container');
+      const emptyState = document.getElementById('empty-state');
+      
+      container.innerHTML = '';
+      
+      try {
+        if (!userEmail) {
+          emptyState.style.display = 'flex';
+          return;
+        }
+        
+        const recipes = JSON.parse(localStorage.getItem(`recipes_${userEmail}`)) || [];
+        
+        if (recipes.length === 0) {
+          emptyState.style.display = 'flex';
+          return;
+        }
+        
+        emptyState.style.display = 'none';
+        
+        recipes.forEach(recipe => {
+          const recipeCard = document.createElement('div');
+          recipeCard.className = 'recipe-card fade-in';
+          recipeCard.innerHTML = `
+            <img src="${recipe.image_url || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${recipe.title}">
+            <div class="recipe-card-content">
+              <h3>${recipe.title}</h3>
+              <div class="recipe-meta">
+                <span>Cuisine: ${recipe.cuisine || 'N/A'}</span>
+                <span>Diet: ${recipe.dietary_preferences || 'N/A'}</span>
+              </div>
+              <div class="btn-group">
+                <button class="view-recipe" data-id="${recipe.id}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+                    <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  View
+                </button>
+                <button class="delete-recipe" data-id="${recipe.id}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon">
+                    <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            </div>
+          `;
+          container.appendChild(recipeCard);
+        });
+        
+        // Add event listeners for buttons
+        document.querySelectorAll('.delete-recipe').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const recipeId = this.getAttribute('data-id');
+            deleteRecipe(recipeId, userEmail);
+          });
+        });
+        
+        document.querySelectorAll('.view-recipe').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const recipeId = this.getAttribute('data-id');
+            viewRecipe(recipeId, userEmail);
+          });
+        });
+      } catch (error) {
+        console.error('Error loading recipes:', error);
+        emptyState.style.display = 'flex';
+      }
+    }
+    
+    function deleteRecipe(id, userEmail) {
+      try {
+        const recipes = JSON.parse(localStorage.getItem(`recipes_${userEmail}`)) || [];
+        const updatedRecipes = recipes.filter(recipe => recipe.id !== id);
+        localStorage.setItem(`recipes_${userEmail}`, JSON.stringify(updatedRecipes));
+        loadSavedRecipes(userEmail);
+      } catch (error) {
+        console.error("Error deleting recipe:", error);
+        alert("Failed to delete recipe");
+      }
+    }
+    
+    function viewRecipe(id, userEmail) {
+      try {
+        const recipes = JSON.parse(localStorage.getItem(`recipes_${userEmail}`)) || [];
+        const recipe = recipes.find(r => r.id === id);
+        
+        if (!recipe) {
+          console.error("Recipe not found");
+          return;
+        }
+        
+        // Create a modal to display the recipe
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>${recipe.title}</h2>
+            <div class="modal-body">
+              <div class="modal-image">
+                <img src="${recipe.image_url || 'https://via.placeholder.com/600x400?text=No+Image'}" alt="${recipe.title}">
+                <div class="recipe-meta">
+                  <span>Cuisine: ${recipe.cuisine || 'N/A'}</span>
+                  <span>Diet: ${recipe.dietary_preferences || 'N/A'}</span>
+                </div>
+              </div>
+              <div class="recipe-text">${formatRecipeOutput(recipe.content)}</div>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        
+        // Close modal
+        modal.querySelector('.close-modal').addEventListener('click', () => {
+          document.body.removeChild(modal);
+          document.body.style.overflow = '';
+        });
+        
+        // Close when clicking outside
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            document.body.removeChild(modal);
+            document.body.style.overflow = '';
+          }
+        });
+      } catch (error) {
+        console.error("Error viewing recipe:", error);
+        alert("Failed to view recipe");
+      }
+    }
+
+    function formatRecipeOutput(recipeText) {
+      if (!recipeText) return '<p>No recipe content available</p>';
+      
+      // Split the recipe into sections
+      const sections = recipeText.split(/\n\s*\n/);
+      let html = '';
+      
+      sections.forEach(section => {
+        if (!section.trim()) return;
+        
+        if (section.startsWith('Recipe Name:')) {
+          // Already displayed in the title
+        } else if (section.startsWith('Serving Size:')) {
+          html += `<div class="recipe-section"><h4>Recipe Details</h4><ul>`;
+          section.split('\n').forEach(line => {
+            if (line.trim()) html += `<li>${line.trim()}</li>`;
+          });
+          html += `</ul></div>`;
+        } else if (section.startsWith('Ingredients:')) {
+          html += `<div class="recipe-section"><h4>Ingredients</h4><ul>`;
+          section.split('\n').slice(1).forEach(line => {
+            if (line.trim()) {
+              const cleanedLine = line.replace(/^[-•*]?\s*/, '').trim();
+              if (cleanedLine) html += `<li>${cleanedLine}</li>`;
+            }
+          });
+          html += `</ul></div>`;
+        } else if (section.startsWith('Instructions:')) {
+          html += `<div class="recipe-section"><h4>Instructions</h4><ol>`;
+          section.split('\n').slice(1).forEach(line => {
+            if (line.trim()) {
+              // Handle both numbered and bulleted instructions
+              if (line.match(/^\d+\./)) {
+                html += `<li>${line.replace(/^\d+\.\s*/, '').trim()}</li>`;
+              } else if (line.match(/^[-•*]/)) {
+                html += `<li>${line.replace(/^[-•*]\s*/, '').trim()}</li>`;
+              } else {
+                html += `<li>${line.trim()}</li>`;
+              }
+            }
+          });
+          html += `</ol></div>`;
+        } else if (section.startsWith('Tips:')) {
+          html += `<div class="recipe-section"><h4>Tips</h4><ul>`;
+          section.split('\n').slice(1).forEach(line => {
+            if (line.trim()) html += `<li>${line.replace(/^[-•*]?\s*/, '').trim()}</li>`;
+          });
+          html += `</ul></div>`;
+        } else if (section.startsWith('Nutritional Info')) {
+          html += `<div class="recipe-section"><h4>Nutritional Information</h4><ul>`;
+          section.split('\n').slice(1).forEach(line => {
+            if (line.trim()) html += `<li>${line.replace(/^[-•*]?\s*/, '').trim()}</li>`;
+          });
+          html += `</ul></div>`;
+        } else {
+          // For any other content that doesn't match the patterns above
+          html += `<div class="recipe-section"><p>${section.replace(/\n/g, '<br>')}</p></div>`;
+        }
+      });
+      
+      return html || '<p>Recipe details not available in expected format.</p>';
+    }
+  </script>
+</body>
+</html>
